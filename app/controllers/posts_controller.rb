@@ -53,8 +53,15 @@ class PostsController < ApplicationController
     the_id = params.fetch("path_id")
     the_post = Post.where({ :id => the_id }).at(0)
 
-    the_post.destroy
-
-    redirect_to("/posts", { :notice => "Post deleted successfully."} )
+    if current_user != nil
+      if the_post.user_id == current_user.id
+        the_post.destroy
+        redirect_to("/boards/#{the_post.board_id}", { :notice => "Post deleted successfully."} )
+      else
+        redirect_to("/boards/#{the_post.board_id}", { :alert => "Invalid access; post not deleted." } )
+      end
+    else
+      redirect_to("/boards/#{the_post.board_id}", { :alert => "Sign in to delete posts you own." } )
+    end
   end
 end
